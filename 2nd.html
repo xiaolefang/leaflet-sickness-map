@@ -3,12 +3,13 @@
 <html>
 <head>
 	
-	<title>病情地图test by 硕乐v0.5</title>
+	<title>病情地图test by 硕乐v0.8</title>
 
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./leaflet/leaflet.css" />
   	<script src="./leaflet/leaflet.js"></script>
+    <script src="./leaflet/echarts.js"></script>
   	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="./geojson_guangdong_sickness.js"></script>
     <script src="./guangdong_sick_point.js"></script>
@@ -105,8 +106,66 @@
                     };
                 },
         onEachFeature: function (feature, layer) {
-                    popupOptions = {maxWidth: 200};
-                    layer.bindPopup("截止至最近的凌晨23:00，" + feature.properties.city_name + "有<br /><b>" + feature.properties.value+"确诊病人</b>");
+                    //popupOptions = {maxWidth: 200};
+                    //layer.bindPopup("截止至最近的凌晨23:00，" + feature.properties.city_name + "有<br /><b>" + feature.properties.value+"确诊病人</b>");
+                    var content1='<div style="width:280px;height:220px" id="mark1"></div>';
+                    layer.bindPopup(content1,{});
+                    layer.on('popupopen',function(e){
+                        var city = feature.properties.city_name.replace("市","")
+                        var url_dateline = "https://superfxl.xyz/geoserver/cite/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=cite:city_confirm_count&maxFeatures=20&outputFormat=application/json&FILTER=<Filter><PropertyIsEqualTo><PropertyName>city_name</PropertyName><Literal>"+city+"</Literal></PropertyIsEqualTo></Filter>"
+                        var ajax_timeline = $.ajax({
+                            url:url_dateline,
+                            success:function(response){
+                                var myChart=echarts.init(document.getElementById('mark1'));
+                                var dates = []
+                                var datas = []
+                                for (var i=0;i<response.features.length;i++){
+                                    date_value = response.features[i].properties.confirmed_date.replace("Z","")
+                                    dates.push(date_value)
+                                    datas.push(response.features[i].properties.value)
+                                }
+                                console.log(datas)
+                                console.log(dates)
+                                var option={
+                                    title:{
+                                        text: feature.properties.city_name,
+                                        subtext: "截止至最近的凌晨23:00，"+feature.properties.value+"人确诊",
+                                    },
+                                    legend: {
+                                        data: ["确诊人数"],
+                                        align: 'left'
+                                    },
+                                    toolbox: {
+                                        feature: {
+                                            saveAsImage: {
+                                            pixelRatio: 2
+                                            }
+                                        }
+                                    },
+                                    tooltip: {},
+                                    xAxis: {
+                                        data: dates,
+                                        silent: false,
+                                        splitLine: {
+                                            show: false
+                                        }
+                                    },
+                                    yAxis: {},
+                                    series: [{
+                                        name: '确诊人数',
+                                        type: 'bar',
+                                        data: datas
+                                    }]
+                                };
+                        var div = L.DomUtil.create('div');
+                        var chart = echarts.init(div, '', {
+                            width: 500,
+                            height: 300
+                        });
+                        myChart.setOption(option);
+                            }
+                        });
+                    });
                 }
     });
 
