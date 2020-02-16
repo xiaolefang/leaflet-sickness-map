@@ -3,7 +3,7 @@
 <html>
 <head>
 	
-	<title>病情地图test by 硕乐v0.8</title>
+	<title>病情地图test by 硕乐v1.0</title>
 
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,35 +30,9 @@
 
 <input type="button" value="增加div" onclick="addDiv();" />
 <script>
-	var sickPointUrl = "https://superfxl.xyz/geoserver/cite/ows"
-	var sick_Point_defaultParameters = {
-    	service : 'WFS',
-    	version : '1.3.0',
-    	request : 'GetFeature',
-    	typeName : 'cite:guangdong_sick_point',
-    	outputFormat : 'application/json'
-	};
-	var sick_parameters = L.Util.extend(sick_Point_defaultParameters);
-	var sick_url = sickPointUrl + L.Util.getParamString(sick_parameters);
-
 	var sick_layer = null;
-
-
-
-	var owsrootUrl = 'https://superfxl.xyz/geoserver/cite/ows';
-
-	var defaultParameters = {
-    	service : 'WFS',
-    	version : '1.3.0',
-    	request : 'GetFeature',
-    	typeName : 'cite:city_confirm_map',
-    	outputFormat : 'application/json'
-	};
-
-	var parameters = L.Util.extend(defaultParameters);
-	var URL = owsrootUrl + L.Util.getParamString(parameters);
-
 	var WFSLayer = null;
+    var WFSLayer_crue = null;
 
 
 
@@ -76,12 +50,6 @@
 		layers: [basemap]}
     );
 
-	var guangzhouLayer = L.tileLayer.wms('https://superfxl.xyz/geoserver/cite/wms?',{
-		layers: 'cite:guangzhou_sick_point',
-		format: 'image/png',
-		crs: L.CRS.EPSG4326,
-		tileSize:256,
-        transparent: true})
 
 	function getColor(d) {
     return d > 500 ? '#800026' :
@@ -120,21 +88,24 @@
                                 var myChart=echarts.init(document.getElementById('mark1'));
                                 var dates = []
                                 var datas = []
+                                var datas1 = []
                                 for (var i=0;i<response.features.length;i++){
                                     date_value = response.features[i].properties.confirmed_date.replace("Z","")
                                     dates.push(date_value)
-                                    datas.push(response.features[i].properties.value)
+                                    datas.push(response.features[i].properties.crue_vale)
+                                    datas1.push(response.features[i].properties.value)
                                 }
-                                console.log(datas)
-                                console.log(dates)
                                 var option={
                                     title:{
                                         text: feature.properties.city_name,
-                                        subtext: "截止至最近的凌晨23:00，累计"+feature.properties.value+"人确诊",
+                                        subtext: "截止至最近的凌晨20:30，累计"+feature.properties.value+"人确诊",
                                     },
                                     legend: {
-                                        data: ["确诊人数"],
-                                        align: 'left'
+                                        data: ["治愈人数","确诊人数"],
+                                        align: 'left',
+                                        itemWidth: 20,
+                                        itemHeight: 10,
+                                        itemGap: 10,
                                     },
                                     toolbox: {
                                         feature: {
@@ -153,9 +124,14 @@
                                     },
                                     yAxis: {},
                                     series: [{
+                                        name: '治愈人数',
+                                        type: 'bar',
+                                        data: datas,
+                                        color: '#00FF00'
+                                    },{
                                         name: '确诊人数',
                                         type: 'bar',
-                                        data: datas
+                                        data: datas1
                                     }]
                                 };
                         var div = L.DomUtil.create('div');
@@ -169,6 +145,93 @@
                     });
                 }
     });
+
+WFSLayer_crue = L.geoJson(geo_guangdong_city,{
+        style: function (feature) {
+                    return {
+                        stroke: false,
+                        fillColor: getColor(feature.properties.crue_value),
+                        weight: 2,
+                        opacity: 1,
+                        color: 'white',
+                        dashArray: '3',
+                        fillOpacity: 0.7
+                    };
+                },
+        onEachFeature: function (feature, layer) {
+                    //popupOptions = {maxWidth: 200};
+                    //layer.bindPopup("截止至最近的凌晨23:00，" + feature.properties.city_name + "有<br /><b>" + feature.properties.value+"确诊病人</b>");
+                    var content1='<div style="width:280px;height:220px" id="mark1"></div>';
+                    layer.bindPopup(content1,{});
+                    layer.on('popupopen',function(e){
+                        var city = feature.properties.city_name.replace("市","")
+                        var url_dateline = "https://superfxl.xyz/geoserver/cite/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=cite:city_confirm_count&maxFeatures=20&outputFormat=application/json&FILTER=<Filter><PropertyIsEqualTo><PropertyName>city_name</PropertyName><Literal>"+city+"</Literal></PropertyIsEqualTo></Filter>"
+                        var ajax_timeline = $.ajax({
+                            url:url_dateline,
+                            success:function(response){
+                                var myChart=echarts.init(document.getElementById('mark1'));
+                                var dates = []
+                                var datas = []
+                                var datas1 = []
+                                for (var i=0;i<response.features.length;i++){
+                                    date_value = response.features[i].properties.confirmed_date.replace("Z","")
+                                    dates.push(date_value)
+                                    datas.push(response.features[i].properties.crue_vale)
+                                    datas1.push(response.features[i].properties.value)
+                                }
+                                console.log(datas)
+                                console.log(dates)
+                                var option={
+                                    title:{
+                                        text: feature.properties.city_name,
+                                        subtext: "截止至最近的凌晨20:20，累计"+feature.properties.crue_value+"人治愈",
+                                    },
+                                    legend: {
+                                        data: ["治愈人数","确诊人数"],
+                                        align: 'left',
+                                        itemWidth: 20,
+                                        itemHeight: 10,
+                                        itemGap: 10,
+                                    },
+                                    toolbox: {
+                                        feature: {
+                                            saveAsImage: {
+                                            pixelRatio: 2
+                                            }
+                                        }
+                                    },
+                                    tooltip: {},
+                                    xAxis: {
+                                        data: dates,
+                                        silent: false,
+                                        splitLine: {
+                                            show: false
+                                        }
+                                    },
+                                    yAxis: {},
+                                    series: [{
+                                        name: '治愈人数',
+                                        type: 'bar',
+                                        data: datas,
+                                        color: '#00FF00'
+                                    },{
+                                        name: '确诊人数',
+                                        type: 'bar',
+                                        data: datas1
+                                    }]
+                                };
+                        var div = L.DomUtil.create('div');
+                        var chart = echarts.init(div, '', {
+                            width: 500,
+                            height: 300
+                        });
+                        myChart.setOption(option);
+                            }
+                        });
+                    });
+                }
+    });
+
 
     var geojsonMarkerOptions = {
                 radius: 8,
@@ -195,7 +258,8 @@
 		"普通底图": basemap,
 	};
 	var overlays = {
-                        "广东省病情地图": WFSLayer,
+                        "广东省累计确诊地图": WFSLayer,
+                        "广东省累计治愈地图": WFSLayer_crue,
                         "广东病情点": sick_layer
                     };      
     L.control.layers(baseLayers,overlays).addTo(map);   	
