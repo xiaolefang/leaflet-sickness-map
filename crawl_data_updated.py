@@ -36,9 +36,12 @@ while True:
     for city in guangdong:
         cityName = (city['cityName'])
         confirmedCount =  (city['confirmedCount'])
-        sql = "insert into city_confirm_count(id,city_name,value,confirmed_date) values (null,'"+cityName+"',"+str(confirmedCount)+",'"+str(today)+"')"
+        crueCount = (city['curedCount'])
+        sql = "insert into city_confirm_count(id,city_name,value,confirmed_date,crue_vale) values (null,'"+cityName+"',"+str(confirmedCount)+",'"+str(today)+"',"+str(crueCount)+")"
+        print(sql)
         cur = engine.execute(sql)
-        sql = "update city_confirm_map set value="+str(confirmedCount)+" where city_name like '%"+cityName+"%'"
+        sql = "update city_confirm_map set value="+str(confirmedCount)+", crue_value="+str(crueCount)+" where city_name like '%"+cityName+"%'"
+        print(sql)
         cur = engine.execute(sql)
     print(time.ctime())
     time.sleep(3600*24)
