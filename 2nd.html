@@ -73,7 +73,8 @@
 	var map = L.map('map',{
 		center: [23.148363,113.2553319],
 		zoom: 7,
-		layers: [basemap]});
+		layers: [basemap]}
+    );
 
 	var guangzhouLayer = L.tileLayer.wms('https://superfxl.xyz/geoserver/cite/wms?',{
 		layers: 'cite:guangzhou_sick_point',
@@ -129,7 +130,7 @@
                                 var option={
                                     title:{
                                         text: feature.properties.city_name,
-                                        subtext: "截止至最近的凌晨23:00，"+feature.properties.value+"人确诊",
+                                        subtext: "截止至最近的凌晨23:00，累计"+feature.properties.value+"人确诊",
                                     },
                                     legend: {
                                         data: ["确诊人数"],
