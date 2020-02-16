@@ -76,7 +76,7 @@
                 },
         onEachFeature: function (feature, layer) {
                     //popupOptions = {maxWidth: 200};
-                    //layer.bindPopup("截止至最近的凌晨23:00，" + feature.properties.city_name + "有<br /><b>" + feature.properties.value+"确诊病人</b>");
+                    //layer.bindPopup("截止至最近的20:30，" + feature.properties.city_name + "有<br /><b>" + feature.properties.value+"确诊病人</b>");
                     var content1='<div style="width:280px;height:220px" id="mark1"></div>';
                     layer.bindPopup(content1,{});
                     layer.on('popupopen',function(e){
@@ -98,7 +98,7 @@
                                 var option={
                                     title:{
                                         text: feature.properties.city_name,
-                                        subtext: "截止至最近的凌晨20:30，累计"+feature.properties.value+"人确诊",
+                                        subtext: "截止至最近的20:30，累计"+feature.properties.value+"人确诊",
                                     },
                                     legend: {
                                         data: ["治愈人数","确诊人数"],
@@ -160,7 +160,7 @@ WFSLayer_crue = L.geoJson(geo_guangdong_city,{
                 },
         onEachFeature: function (feature, layer) {
                     //popupOptions = {maxWidth: 200};
-                    //layer.bindPopup("截止至最近的凌晨23:00，" + feature.properties.city_name + "有<br /><b>" + feature.properties.value+"确诊病人</b>");
+                    //layer.bindPopup("截止至最近的20:20，" + feature.properties.city_name + "有<br /><b>" + feature.properties.value+"确诊病人</b>");
                     var content1='<div style="width:280px;height:220px" id="mark1"></div>';
                     layer.bindPopup(content1,{});
                     layer.on('popupopen',function(e){
@@ -184,7 +184,7 @@ WFSLayer_crue = L.geoJson(geo_guangdong_city,{
                                 var option={
                                     title:{
                                         text: feature.properties.city_name,
-                                        subtext: "截止至最近的凌晨20:20，累计"+feature.properties.crue_value+"人治愈",
+                                        subtext: "截止至最近的20:30，累计"+feature.properties.crue_value+"人治愈",
                                     },
                                     legend: {
                                         data: ["治愈人数","确诊人数"],
@@ -248,7 +248,7 @@ WFSLayer_crue = L.geoJson(geo_guangdong_city,{
                         },
                         onEachFeature: function(feature,layer){
                             popupOptions = {maxWidth: 200};
-                            layer.bindPopup("截止至最近的23:00，源于"+feature.properties.source+"，"+feature.properties.name);
+                            layer.bindPopup("截止至最近的20:30，源于"+feature.properties.source+"，"+feature.properties.name);
 
                         }
                     }).addTo(map);
